@@ -16,7 +16,7 @@ $(BINARY): $(OBJECTS)
 
 clean:
 	@rm -f $(BINARY)
-	@rm -f *.o *.gch
+	@rm -f src/*.o src/*.gch
 
 .PHONY:
 	clean
