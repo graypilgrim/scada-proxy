@@ -16,6 +16,7 @@ public:
 
 private:
 	std::queue<std::shared_ptr<CommunicationData> > queue;
+	std::mutex mutex;
 };
 
 #endif
