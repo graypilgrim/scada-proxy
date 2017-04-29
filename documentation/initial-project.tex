@@ -1,0 +1,174 @@
+\documentclass[a4paper]{article}
+
+%% Language and font encodings
+\usepackage[english]{babel}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
+
+%% Sets page size and margins
+\usepackage[a4paper,top=3cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+%% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{secdot}
+\usepackage{parskip}
+
+\title{Projekt TIN - dokumentacja wstępna}
+\author{Łukasz Wlazły\\Kamil Kaczmarek\\Grzegorz Lewczuk\\Jan Antoniak}
+\date{}
+
+\begin{document}
+\maketitle
+
+
+\section{Treść projektu}
+
+Celem zadania jest implementacja serwera proxy, który odbiera komendy z kilku stacji SCADA, buforuje je i przekazuje do urządzenia w kolejności napływania a uzyskane odpowiedzi odsyła do odpowiednich nadawców. Dodatkowo serwer loguje wszystkie komendy wysyłana przez stację SCADA.
+
+
+\section{Założenia projektowe}
+
+\begin{enumerate}
+\item Implementacja projektu w języku C++ z wykorzystaniem standardu C++11.
+\item Brak wysokopoziomowej biblioteki do zarządzania socketami .
+\item Serwer proxy będzie działał w środowisku dostarczonym przez prowadzącego projekt.
+\item Aplikacja będzie wielowątkowa, synchronizacja będzie się odbywała za pomocą zmiennych warunkowych i semaforów binarnych.
+\item Aplikacja będzie umieszczała komunikaty w specjalnym pliku z logami.
+\item Dostępny będzie plik konfiguracyjny pozwalający na zmianę pewnych wartości bez ingerencji w kod.
+\item Komunikacja między klientami a serwerem proxy oraz między serwerem proxy a urządzeniem będzie się odbywała za pomocą protokołu TCP.
+\end{enumerate}
+
+
+\section{Aplikacja}
+
+Aplikacja serwera proxy będzie udostępniała klientom taki sam interfejs jak urządzenie, tak więc ze strony stacji SCADA nie będzie widać żadnej różnicy. Będzie jednak możliwa jednoczesna komunikacja wielu stacji. Stacje SCADA nie będą się bezpośrednio komunikowały z urządzeniem. Ze strony urządzenia wszystkie wiadomości i zapytania będą pochodziły od serwera proxy.
+
+\subsection{Budowa Aplikacji}
+W aplikacji wykorzystane będą następujące klasy:
+\begin{enumerate}
+\item \textbf{Buffer} - klasa bufora, przechowuje kolejkę wiadomości w kolejności FIFO. Udostępnia operacje:
+\begin{itemize}
+\item \texttt{push\_back()} - dodanie wiadomości do bufora na koniec kolejki
+\item \texttt{pop\_front()} - pobrania wiadomości z bufora z początku kolejki
+\item \texttt{size()} - pobranie liczby elementów znajdujących się w buforze
+\item \texttt{empty()} - sprawdzenie czy coś czeka w buforze
+\end{itemize}
+Operacje \texttt{push\_back()} i \texttt{pop\_front()} będą zabezpieczone mutexem.
+\item \textbf{Logger} - klasa loggera, pozwala na zapisywanie do pliku odpowiednich logów. Udostępnia opcje zapisu dwóch typów logów:
+\begin{itemize}
+\item \texttt{success}, do informowania o wykonanych zadaniach
+\item \texttt{error}, do informowania o błędach, zerwaniu połączenia
+\end{itemize}
+Operacje zapisu do pliku z logami będą zabezpieczone mutexem, aby wyeliminować niepożądane zachowanie, takie jak nadpisanie danych lub zgubienie niektórych informacji.
+\item \textbf{ConfigReader} - klasa obsługująca czytanie z pliku config.
+\item \textbf{MessageData} - klasa reprezentująca obiekty umieszczane w buforze, zawierająca następujące pola:
+\begin{itemize}
+\item \texttt{message} - wiadomość wysłana do urządzenia ze stacji SCADA
+\item \texttt{response} - odpowiedź odebrana z urządzenia(puste w chwili tworzenia)
+\item \texttt{condition variable} - zmienna warunkowa dotycząca wątku przeznaczonego do komunikacji z odpowiednią stacją SCADA
+\end{itemize}
+Wątki klienta są właścicielami obiektów typu \texttt{MessageData}, w buforze znajduje się inteligentny wskaźnik do nich.
+\item \textbf{ClientThread} - klasa wątku odpowiedzialnego za komunikację stacji SCADA z aplikacją serwera proxy
+Posiada swoją zmienną warunkową, na której zawiesza się po umieszczeniu wiadomości w kolejce.
+Odpowiada za odebranie wiadomości za stacji SCADA, przekazanie jej do bufora i odesłanie odpowiedzi do stacji SCADA.
+\item \textbf{MainClientThread} - klasa wątku odpowiedzialnego za nawiązywanie połączeń ze stacjami SCADA i tworzenie odpowiednich wątków CT
+\item \textbf{ServerThread} - klasa wątku odpowiedzialnego za komunikację serwera proxy z urządzeniem. Posiada zmienną warunkową, na której zawiesza się, gdy nie ma wiadomości w kolejce.
+Odpowiada za pobranie wiadomości oczekującej w buforze i wysłanie jej do urządzenia. Po odebraniu odpowiedzi przekazuje ją do odpowiedniego wątku klienckiego.
+\end{enumerate}
+
+\subsection{Plik konfiguracyjny}
+Plik konfiguracyjny będzie zawierał pola:
+\begin{itemize}
+\item \texttt{S\_IP\_ADDRESS} - adres ip serwera
+\item \texttt{S\_PORT} - port serwera
+\item \texttt{C\_PORT} - port otwierany do komunikacji z klientami
+\item \texttt{LOGS\_FILE} - ścieżka do pliku z logami
+\item \texttt{MAX\_BUFFER\_SIZE} - maksymalna ilość kolejkowanych wiadomości \textit{(-1 == inf)}
+\item \texttt{VERBOSITY} - ustawienie formy logów (\texttt{verbose} - forma rozszerzona, \texttt{no-verbose} - forma skrócona)
+\end{itemize}
+
+\subsection{Plik z logami}
+W rejestrze logów zapisywane będą informacje o ruchu przechodzącym przez serwer proxy. W zależności od podanej w pliku konfiguracyjnym flagi, logi będą w formie rozszerzonej (pełne formy komend i dane) lub skróconej (skrócone komendy bez danych)\\
+
+Format logów:\\
+timestamp | status operacji (success/error) |\\adres nadawcy | adres odbiorcy | komenda SCADA | dane
+
+
+\section{Przypadki użycia}
+\subsection{Inicjalizacja serwera proxy}
+\begin{enumerate}
+\item Aplikacja tworzy obiekt ConfigReader i dzięki niemu pobiera odpowiednie ustawienia.
+\item Na podstawie informacji w pliku konfiguracyjnym tworzone są obiekty Logger oraz Buffer.
+\item Tworzy dwa wątki:
+\begin{itemize}
+\item Odpowiedzialny za przyjmowanie klientów oraz tworzenie wątków(ClientThread) dla każdego klienta(MainClientThread)
+Wątek ten nasłuchuje połączeń ze stacji SCADA na adresie i porcie ustawionym w pliku konfiguracyjnym.
+\item Odpowiedzialny za nawiązanie połączenia z serwerem oraz komunikację z nim (ServerThread)
+Wątek serwera nawiązuje połączenie z urządzeniem w celu przekazywania wiadomości lub zapytań za stacji SCADA.
+\end{itemize}
+\item Wątek serwera (ST) zawiesza się na zmiennej warunkowej w oczekiwaniu na przyjście wiadomości.
+\end{enumerate}
+
+\subsection{Nawiązanie połączenia przez stację SCADA}
+\begin{enumerate}
+\item Stacja łączy się z serwerem proxy.
+\item Serwer proxy tworzy osobny wątek ClientThread (CT) i nowo stworzonym wątku przyjmuje wiadomość od stacji.
+\item CT tworzy nowy obiekt \texttt{MessageData}, następnie umieszcza w nim wiadomość, oraz własną zmienną warunkową. Przekazuje wskaźnik obiektu do bufora i zawiesza się na przekazanej zmiennej warunkowej przy próbie pobrania elementu.
+\end{enumerate}
+
+\subsection{Dodawanie obiektu do bufora}
+\begin{enumerate}
+\item Operacja \texttt{lock} na mutexie wewnątrz bufora.
+\item Dodanie obiektu do bufora (\texttt{push\_back()}).
+\item Operacja \texttt{signal} na wątku serwera, wybudzająca go, jeśli wcześniej czekał na dane.
+\item Operacja \texttt{unlock} na mutexie wewnątrz bufora.
+\end{enumerate}
+
+\subsection{Wysłanie wiadomości przez serwer proxy}
+\begin{enumerate}
+\item Pobranie pierwszego elementu z bufora.
+\item Wysłanie wiadomości do urządzenia pobranej z pola \texttt{message} obiektu \texttt{MessageData}.
+\item Odbiór odpowiedzi od urządzenia.
+\item Uzupełnienie pola \texttt{response} w obiekcie \texttt{MessageData}.
+\item Wywołanie \texttt{signal} na zmiennej warunkowej CT z pobranego obiektu \texttt{MessageData}.
+\end{enumerate}
+
+\textit{Wysyłanie wiadomości odbywa się cyklicznie, serwer proxy próbuje wysłać coś do urządzenia jeśli w buforze znajduje się jakiś element.}
+
+\subsection{Pobranie obiektu z bufora}
+\begin{enumerate}
+\item Operacja \texttt{lock} na mutexie wewnątrz bufora.
+\item Jeśli bufor jest pusty, operacja \texttt{wait} na zmiennej warunkowej wątku serwera
+\item Pobranie pierwszego elementu z bufora (\texttt{pop\_front()}).
+\item Operacja \texttt{unlock} na mutexie wewnątrz bufora.
+\end{enumerate}
+
+\subsection{Wzbudzenie wątku klienta}
+\begin{enumerate}
+\item Sprawdzenie czy jest odpowiedź z serwera
+\item Wysłanie odpowiedzi do stacji SCADA
+\end{enumerate}
+
+\subsection{Zamknięcie połączenia ze stacją SCADA}
+\begin{enumerate}
+\item Po odebraniu komunikatu o zamknięciu połączenia wątek usuwa wszystkie stworzone przez siebie obiekty i kończy się.
+\end{enumerate}
+
+\subsection{Odebranie kolejnej wiadomości ze stacji SCADA}
+\begin{enumerate}
+\item Jeśli klient chce wysłać kolejną wiadomość, to wątek, który się z nim komunikuje przygotowuje obiekt {MessageData} i umieszcza w buforze zgodnie z 4.2.3 (z pominięciem alokacji pamięci).
+\end{enumerate}
+
+\section{Obsługa błędów}
+\begin{enumerate}
+\item Błąd połączenia ze stacją SCADA - odpowiedni CT umieszcza informacje w pliku logów, że wiadomość nie dotarła z powodu rozłączenia klienta.
+\item Błąd połączenia z urządzeniem - przestajemy przyjmować klientów. Do wszystkich oczekujących klientów odsyłamy kod błędu.
+\item Brak odpowiedzi do wysłania do stacji SCADA - odpowiedni CT umieszcza w pliku logów informację o nie otrzymaniu odpowiedzi.
+\item Przepełniony bufor - w przypadku ustawienia limitu, odesłanie do klienta kodu rozłączenia.
+\end{enumerate}
+\end{document}
