@@ -37,7 +37,7 @@ Celem zadania jest implementacja serwera proxy, który odbiera komendy z kilku s
 \item Implementacja projektu w języku C++ z wykorzystaniem standardu C++11.
 \item Brak wysokopoziomowej biblioteki do zarządzania socketami .
 \item Serwer proxy będzie działał w środowisku dostarczonym przez prowadzącego projekt.
-\item Aplikacja będzie wielowątkowa, synchronizacja będzie się odbywała za pomocą zmiennych warunkowych i semaforów binarnych.
+\item Aplikacja będzie wielowątkowa, synchronizacja będzie się odbywała za pomocą semaforów binarnych.
 \item Aplikacja będzie umieszczała komunikaty w specjalnym pliku z logami.
 \item Dostępny będzie plik konfiguracyjny pozwalający na zmianę pewnych wartości bez ingerencji w kod.
 \item Komunikacja między klientami a serwerem proxy oraz między serwerem proxy a urządzeniem będzie się odbywała za pomocą protokołu TCP.
@@ -65,19 +65,19 @@ Operacje \texttt{push\_back()} i \texttt{pop\_front()} będą zabezpieczone mute
 \item \texttt{error}, do informowania o błędach, zerwaniu połączenia
 \end{itemize}
 Operacje zapisu do pliku z logami będą zabezpieczone mutexem, aby wyeliminować niepożądane zachowanie, takie jak nadpisanie danych lub zgubienie niektórych informacji.
-\item \textbf{ConfigReader} - klasa obsługująca czytanie z pliku config.
-\item \textbf{MessageData} - klasa reprezentująca obiekty umieszczane w buforze, zawierająca następujące pola:
+\item \textbf{Configuration} - klasa obsługująca czytanie z pliku config.
+\item \textbf{ConnectionData} - klasa reprezentująca obiekty umieszczane w buforze, zawierająca następujące pola:
 \begin{itemize}
 \item \texttt{message} - wiadomość wysłana do urządzenia ze stacji SCADA
 \item \texttt{response} - odpowiedź odebrana z urządzenia(puste w chwili tworzenia)
-\item \texttt{condition variable} - zmienna warunkowa dotycząca wątku przeznaczonego do komunikacji z odpowiednią stacją SCADA
+\item \texttt{mutex} - semafor binarny dotyczący wątku przeznaczonego do komunikacji z odpowiednią stacją SCADA
 \end{itemize}
-Wątki klienta są właścicielami obiektów typu \texttt{MessageData}, w buforze znajduje się inteligentny wskaźnik do nich.
+Wątki klienta są właścicielami obiektów typu \texttt{ConnectionData}, w buforze znajduje się inteligentny wskaźnik do nich.
 \item \textbf{ClientThread} - klasa wątku odpowiedzialnego za komunikację stacji SCADA z aplikacją serwera proxy
-Posiada swoją zmienną warunkową, na której zawiesza się po umieszczeniu wiadomości w kolejce.
+Posiada swój semafor binarny, na którym zawiesza się po umieszczeniu wiadomości w kolejce.
 Odpowiada za odebranie wiadomości za stacji SCADA, przekazanie jej do bufora i odesłanie odpowiedzi do stacji SCADA.
-\item \textbf{MainClientThread} - klasa wątku odpowiedzialnego za nawiązywanie połączeń ze stacjami SCADA i tworzenie odpowiednich wątków CT
-\item \textbf{ServerThread} - klasa wątku odpowiedzialnego za komunikację serwera proxy z urządzeniem. Posiada zmienną warunkową, na której zawiesza się, gdy nie ma wiadomości w kolejce.
+\item \textbf{ConnectionThread} - klasa wątku odpowiedzialnego za nawiązywanie połączeń ze stacjami SCADA i tworzenie odpowiednich wątków CT
+\item \textbf{ServerThread} - klasa wątku odpowiedzialnego za komunikację serwera proxy z urządzeniem. Posiada semafor binarny, na którym zawiesza się, gdy nie ma wiadomości w kolejce.
 Odpowiada za pobranie wiadomości oczekującej w buforze i wysłanie jej do urządzenia. Po odebraniu odpowiedzi przekazuje ją do odpowiedniego wątku klienckiego.
 \end{enumerate}
 
@@ -102,23 +102,23 @@ timestamp | status operacji (success/error) |\\adres nadawcy | adres odbiorcy | 
 \section{Przypadki użycia}
 \subsection{Inicjalizacja serwera proxy}
 \begin{enumerate}
-\item Aplikacja tworzy obiekt ConfigReader i dzięki niemu pobiera odpowiednie ustawienia.
+\item Aplikacja tworzy obiekt Configuration i dzięki niemu pobiera odpowiednie ustawienia.
 \item Na podstawie informacji w pliku konfiguracyjnym tworzone są obiekty Logger oraz Buffer.
 \item Tworzy dwa wątki:
 \begin{itemize}
-\item Odpowiedzialny za przyjmowanie klientów oraz tworzenie wątków(ClientThread) dla każdego klienta(MainClientThread)
+\item Odpowiedzialny za przyjmowanie klientów oraz tworzenie wątków(ClientThread) dla każdego klienta(ConnectionThread)
 Wątek ten nasłuchuje połączeń ze stacji SCADA na adresie i porcie ustawionym w pliku konfiguracyjnym.
 \item Odpowiedzialny za nawiązanie połączenia z serwerem oraz komunikację z nim (ServerThread)
 Wątek serwera nawiązuje połączenie z urządzeniem w celu przekazywania wiadomości lub zapytań za stacji SCADA.
 \end{itemize}
-\item Wątek serwera (ST) zawiesza się na zmiennej warunkowej w oczekiwaniu na przyjście wiadomości.
+\item Wątek serwera (ST) zawiesza się na mutexie w oczekiwaniu na przyjście wiadomości.
 \end{enumerate}
 
 \subsection{Nawiązanie połączenia przez stację SCADA}
 \begin{enumerate}
 \item Stacja łączy się z serwerem proxy.
 \item Serwer proxy tworzy osobny wątek ClientThread (CT) i nowo stworzonym wątku przyjmuje wiadomość od stacji.
-\item CT tworzy nowy obiekt \texttt{MessageData}, następnie umieszcza w nim wiadomość, oraz własną zmienną warunkową. Przekazuje wskaźnik obiektu do bufora i zawiesza się na przekazanej zmiennej warunkowej przy próbie pobrania elementu.
+\item CT tworzy nowy obiekt \texttt{ConnectionData}, następnie umieszcza w nim wiadomość, oraz własny mutex. Przekazuje wskaźnik obiektu do bufora i zawiesza się na przekazanym mutexie przy próbie pobrania elementu.
 \end{enumerate}
 
 \subsection{Dodawanie obiektu do bufora}
@@ -132,10 +132,10 @@ Wątek serwera nawiązuje połączenie z urządzeniem w celu przekazywania wiado
 \subsection{Wysłanie wiadomości przez serwer proxy}
 \begin{enumerate}
 \item Pobranie pierwszego elementu z bufora.
-\item Wysłanie wiadomości do urządzenia pobranej z pola \texttt{message} obiektu \texttt{MessageData}.
+\item Wysłanie wiadomości do urządzenia pobranej z pola \texttt{message} obiektu \texttt{ConnectionData}.
 \item Odbiór odpowiedzi od urządzenia.
-\item Uzupełnienie pola \texttt{response} w obiekcie \texttt{MessageData}.
-\item Wywołanie \texttt{signal} na zmiennej warunkowej CT z pobranego obiektu \texttt{MessageData}.
+\item Uzupełnienie pola \texttt{response} w obiekcie \texttt{ConnectionData}.
+\item Wywołanie \texttt{unlock} na mutexie CT z pobranego obiektu \texttt{ConnectionData}.
 \end{enumerate}
 
 \textit{Wysyłanie wiadomości odbywa się cyklicznie, serwer proxy próbuje wysłać coś do urządzenia jeśli w buforze znajduje się jakiś element.}
@@ -143,7 +143,7 @@ Wątek serwera nawiązuje połączenie z urządzeniem w celu przekazywania wiado
 \subsection{Pobranie obiektu z bufora}
 \begin{enumerate}
 \item Operacja \texttt{lock} na mutexie wewnątrz bufora.
-\item Jeśli bufor jest pusty, operacja \texttt{wait} na zmiennej warunkowej wątku serwera
+\item Jeśli bufor jest pusty, operacja \texttt{lock} na mutexie wątku serwera
 \item Pobranie pierwszego elementu z bufora (\texttt{pop\_front()}).
 \item Operacja \texttt{unlock} na mutexie wewnątrz bufora.
 \end{enumerate}
@@ -161,7 +161,7 @@ Wątek serwera nawiązuje połączenie z urządzeniem w celu przekazywania wiado
 
 \subsection{Odebranie kolejnej wiadomości ze stacji SCADA}
 \begin{enumerate}
-\item Jeśli klient chce wysłać kolejną wiadomość, to wątek, który się z nim komunikuje przygotowuje obiekt {MessageData} i umieszcza w buforze zgodnie z 4.2.3 (z pominięciem alokacji pamięci).
+\item Jeśli klient chce wysłać kolejną wiadomość, to wątek, który się z nim komunikuje przygotowuje obiekt {ConnectionData} i umieszcza w buforze zgodnie z 4.2.3 (z pominięciem alokacji pamięci).
 \end{enumerate}
 
 \section{Obsługa błędów}
