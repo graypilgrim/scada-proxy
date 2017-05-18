@@ -23,7 +23,8 @@ void ConnectionThread::run() {
 		if (clientSocketDescriptor == -1 )
 			throw std::runtime_error("Client connection error");
 
-		auto clientThread = std::make_shared<ClientThread>(configuration, buffer);
+		auto clientThread = std::make_shared<ClientThread>(configuration, buffer, logger);
+		clientThread->setSocketDescriptor(clientSocketDescriptor);
 		std::thread t(&ClientThread::run, clientThread);
 		t.detach();
 

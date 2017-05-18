@@ -8,9 +8,10 @@
 #include <thread>
 
 int main() {
-	auto buffer = std::make_shared<Buffer>();
 	auto configuration = std::make_shared<Configuration>();
-	auto connectionThread = std::make_shared<ConnectionThread>(configuration, buffer);
+	auto buffer = std::make_shared<Buffer>();
+	auto logger = std::make_shared<Logger>(configuration);
+	auto connectionThread = std::make_shared<ConnectionThread>(configuration, buffer, logger);
 	std::thread t(&ConnectionThread::run, *connectionThread);
 	t.join();
 }

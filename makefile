@@ -10,6 +10,7 @@ SOURCES = \
 		src/Thread.cpp \
 		src/ConnectionThread.cpp \
 		src/ClientThread.cpp \
+		src/Logger.cpp \
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

@@ -1,8 +1,6 @@
 #ifndef CONFIGURATION_HPP_
 #define CONFIGURATION_HPP_
 
-#include "Logger.hpp"
-
 #include <fstream>
 #include <string>
 #include <vector>
@@ -28,7 +26,7 @@ public:
 	int getClientPort() const;
 	std::string getLogFile() const;
 	std::string getMaxBufferSize() const;
-	LoggerVerbosity getVerbosity() const;
+	bool isVerbose() const;
 
 private:
 	std::vector<std::string> information;
@@ -37,7 +35,7 @@ private:
 	// std::string clientPort;
 	// std::string logFile;
 	// std::string maxBufferSize;
-	LoggerVerbosity verbosity;
+	bool verbose;
 };
 
 #endif

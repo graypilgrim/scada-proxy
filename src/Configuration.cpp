@@ -10,7 +10,7 @@ Configuration::Configuration()
 	information[ConfigurationField::CLIENT_PORT] = "1299";
 	information[ConfigurationField::LOG_FILE] = "log.txt";
 	information[ConfigurationField::MAX_BUFFER_SIZE] = "0";
-	verbosity = LoggerVerbosity::VERBOSE;
+	verbose = true;
 }
 
 Configuration::Configuration(std::ifstream &data) {
@@ -36,6 +36,6 @@ std::string Configuration::getMaxBufferSize() const {
 	return information[ConfigurationField::MAX_BUFFER_SIZE];
 }
 
-LoggerVerbosity Configuration::getVerbosity() const {
-	return verbosity;
+bool Configuration::isVerbose() const {
+	return verbose;
 }
