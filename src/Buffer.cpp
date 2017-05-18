@@ -17,5 +17,5 @@ bool Buffer::empty() {
 	auto res = queue.size();
 	mutex.unlock();
 
-	return res;
+	return res == 0;
 }

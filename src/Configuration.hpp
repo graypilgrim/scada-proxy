@@ -30,11 +30,6 @@ public:
 
 private:
 	std::vector<std::string> information;
-	// std::string serverAddress;
-	// std::string serverPort;
-	// std::string clientPort;
-	// std::string logFile;
-	// std::string maxBufferSize;
 	bool verbose;
 };
 
