@@ -5,7 +5,17 @@
 
 #include <fstream>
 #include <string>
-#include <unordered_map>
+#include <vector>
+
+enum ConfigurationField
+{
+	SERVER_ADDRESS,
+	SERVER_PORT,
+	CLIENT_PORT,
+	LOG_FILE,
+	MAX_BUFFER_SIZE,
+	Count
+};
 
 class Configuration
 {
@@ -13,12 +23,20 @@ public:
 	Configuration();
 	Configuration(std::ifstream &data);
 
+	std::string getServerAddress() const;
+	int getServerPort() const;
+	int getClientPort() const;
+	std::string getLogFile() const;
+	std::string getMaxBufferSize() const;
+	LoggerVerbosity getVerbosity() const;
+
 private:
-	std::string serverAddress;
-	std::string serverPort;
-	std::string clientPort;
-	std::string logFile;
-	std::string maxBufferSize;
+	std::vector<std::string> information;
+	// std::string serverAddress;
+	// std::string serverPort;
+	// std::string clientPort;
+	// std::string logFile;
+	// std::string maxBufferSize;
 	LoggerVerbosity verbosity;
 };
 

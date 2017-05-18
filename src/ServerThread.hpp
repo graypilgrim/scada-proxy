@@ -6,7 +6,9 @@
 class ServerThread : public Thread
 {
 public:
-	ThreadStatus run() override;
+	using Thread::Thread;
+
+	void run() override;
 };
 
 #endif

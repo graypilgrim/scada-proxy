@@ -1,7 +1,7 @@
 #ifndef BUFFER_HPP_
 #define BUFFER_HPP_
 
-#include "CommunicationData.hpp"
+#include "ClientData.hpp"
 
 #include <mutex>
 #include <queue>
@@ -10,12 +10,12 @@
 class Buffer
 {
 public:
-	void pushBack(std::shared_ptr<CommunicationData> data);
+	void pushBack(std::shared_ptr<ClientData> data);
 	void popFront();
 	bool empty();
 
 private:
-	std::queue<std::shared_ptr<CommunicationData> > queue;
+	std::queue<std::shared_ptr<ClientData> > queue;
 	std::mutex mutex;
 };
 
