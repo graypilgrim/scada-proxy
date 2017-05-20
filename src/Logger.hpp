@@ -2,21 +2,18 @@
 #define LOGGER_HPP_
 
 #include "Message.hpp"
+#include "Configuration.hpp"
 
 #include <string>
-
-enum class LoggerVerbosity
-{
-	VERBOSE,
-	NO_VERBOSE
-};
+#include <memory>
 
 class Logger
 {
 public:
-	Logger(LoggerVerbosity verbosity);
-	Logger(std::string fileName, LoggerVerbosity verbosity);
-	void write(Message *message, bool status);
+	Logger(const std::shared_ptr<Configuration> &configuration);
+
+private:
+	std::shared_ptr<Configuration> configuration;
 };
 
 #endif

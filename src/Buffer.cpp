@@ -1,6 +1,6 @@
 #include "Buffer.hpp"
 
-void Buffer::pushBack(std::shared_ptr<CommunicationData> data) {
+void Buffer::pushBack(std::shared_ptr<ClientData> data) {
 	mutex.lock();
 	queue.emplace(data);
 	mutex.unlock();
@@ -17,5 +17,5 @@ bool Buffer::empty() {
 	auto res = queue.size();
 	mutex.unlock();
 
-	return res;
+	return res == 0;
 }

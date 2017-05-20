@@ -3,10 +3,17 @@
 
 #include "Thread.hpp"
 
+#include <string.h>
+
 class ClientThread : public Thread
 {
 public:
-	ThreadStatus run() override;
+	using Thread::Thread;
+
+	void run() override;
+
+private:
+	static const int maxBufferSize = 1024;
 };
 
 #endif

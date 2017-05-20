@@ -1,12 +1,12 @@
-#ifndef COMMUNICATION_DATA_
-#define COMMUNICATION_DATA_
+#ifndef CLIENT_DATA_HPP_
+#define CLIENT_DATA_HPP_
 
 #include "Message.hpp"
 
 #include <memory>
 #include <mutex>
 
-class CommunicationData
+class ClientData
 {
 public:
 	void addRequest(std::unique_ptr<Message> request);
