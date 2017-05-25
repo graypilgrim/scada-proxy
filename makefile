@@ -11,6 +11,7 @@ SOURCES = \
 		src/ConnectionThread.cpp \
 		src/ClientThread.cpp \
 		src/Logger.cpp \
+		src/Message.cpp \
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

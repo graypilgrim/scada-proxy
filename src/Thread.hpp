@@ -18,7 +18,7 @@ public:
 	Thread(const std::shared_ptr<Configuration> &configuration,
 	       const std::shared_ptr<Buffer> &buffer,
 		   const std::shared_ptr<Logger> &logger);
-	virtual ~Thread(){};
+	virtual ~Thread() = default;
 	virtual void run() = 0;
 
 	void setSocketDescriptor(int socketDescriptor);

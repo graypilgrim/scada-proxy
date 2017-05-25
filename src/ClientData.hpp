@@ -16,7 +16,7 @@ public:
 private:
 	std::unique_ptr<Message> request;
 	std::unique_ptr<Message> response;
-	std::mutex mutex;
+	std::unique_ptr<std::mutex> mutex;
 };
 
 #endif

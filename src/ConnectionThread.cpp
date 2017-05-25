@@ -29,6 +29,4 @@ void ConnectionThread::run() {
 		t.detach();
 
 	} while(true);
-
-
 }
