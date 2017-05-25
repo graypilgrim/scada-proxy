@@ -23,7 +23,7 @@ public:
 	Configuration();
 	Configuration(std::ifstream &data);
 
-	std::string getServerAddress() const;
+	const char *getServerAddress() const;
 	int getServerPort() const;
 	int getClientPort() const;
 	std::string getLogFile() const;

@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -c -Wall -pedantic -o2 -std=c++11
+CXXFLAGS = -c -Wall -pedantic -O2 -std=c++11
 LINK_FLAGS = -lpthread
 BINARY = proxy.out
 

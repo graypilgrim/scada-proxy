@@ -2,10 +2,11 @@
 
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 Configuration::Configuration()
 {
-	information["SERVER_ADDRESS"] = "127.0.0.0";
+	information["SERVER_ADDRESS"] = "127.0.0.1";
 	information["SERVER_PORT"] = "1280";
 	information["CLIENT_PORT"] = "1299";
 	information["LOG_FILE"] = "log.txt";
@@ -29,8 +30,8 @@ Configuration::Configuration(std::ifstream &data) {
 	}
 }
 
-std::string Configuration::getServerAddress() const {
-	return information.at("SERVER_ADDRESS");
+const char *Configuration::getServerAddress() const {
+	return information.at("SERVER_ADDRESS").c_str();
 }
 
 int Configuration::getServerPort() const {
