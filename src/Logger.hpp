@@ -12,6 +12,9 @@ class Logger
 public:
 	Logger(const std::shared_ptr<Configuration> &configuration);
 
+	void saveRequest(Message *message);
+	void saveResponse(Message *message);
+
 private:
 	std::shared_ptr<Configuration> configuration;
 };

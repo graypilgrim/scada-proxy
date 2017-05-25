@@ -9,8 +9,11 @@
 class ClientData
 {
 public:
+	ClientData();
+
 	void addRequest(std::unique_ptr<Message> request);
 	void addResponse(std::unique_ptr<Message> response);
+	void lock();
 	void unlock();
 
 private:
