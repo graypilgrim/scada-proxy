@@ -18,7 +18,6 @@ private:
 	void receiveRequest();
 	void sendResponse();
 
-	static const int maxBufferSize = 1024;
 	std::shared_ptr<ClientData> data;
 };
 

@@ -10,6 +10,10 @@ ClientThread::ClientThread(const std::shared_ptr<Configuration> &configuration,
 
 void ClientThread::run() {
 	receiveRequest();
+	buffer->pushBack(data);
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "i am waiting for response" << std::endl;
+	data->lockClient();
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "i finished connection" << std::endl;
 	close(socketDescriptor);
 }
 
@@ -41,21 +45,20 @@ void ClientThread::receiveRequest()
 
 			auto message = std::unique_ptr<Message>(new Message(messageBuffer, readSigns));
 
-			if (message->isReady()) {
-				logger->saveRequest(message.get());
-				data->addRequest(std::move(message));
-
-				for (auto i = 0; i < readSigns; ++i)
-					std::cout << std::hex << "0x"  << static_cast<int>(messageBuffer.get()[i]) << " ";
-				std::cout << std::endl;
-
-				concatenate = false;
-
-				break;
+			if (!message->isReady()) {
+				cachedMessageBuffer = messageBuffer;
+				concatenate = true;
+				continue;
 			}
 
-			cachedMessageBuffer = messageBuffer;
-			concatenate = true;
+			logger->saveRequest(message.get());
+			data->addRequest(std::move(message));
+
+			for (auto i = 0; i < readSigns; ++i)
+				std::cout << std::hex << "0x"  << static_cast<int>(messageBuffer.get()[i]) << " ";
+			std::cout << std::endl;
+
+			concatenate = false;
 		}
 
 	} while (readSigns != 0);

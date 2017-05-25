@@ -10,13 +10,19 @@
 class Buffer
 {
 public:
+	Buffer();
+
 	void pushBack(std::shared_ptr<ClientData> data);
+	std::shared_ptr<ClientData> front();
 	void popFront();
 	bool empty();
 
+	void lockServerThread();
+
 private:
 	std::queue<std::shared_ptr<ClientData> > queue;
-	std::mutex mutex;
+	std::mutex accessMutex;
+	std::mutex threadMutex;
 };
 
 #endif

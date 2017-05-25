@@ -13,8 +13,8 @@ public:
 
 	void addRequest(std::unique_ptr<Message> request);
 	void addResponse(std::unique_ptr<Message> response);
-	void lock();
-	void unlock();
+	void lockClient();
+	void unlockClient();
 
 private:
 	std::unique_ptr<Message> request;

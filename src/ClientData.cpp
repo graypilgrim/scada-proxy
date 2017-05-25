@@ -14,12 +14,12 @@ void ClientData::addResponse(std::unique_ptr<Message> response)
 	this->response = std::move(response);
 }
 
-void ClientData::lock()
+void ClientData::lockClient()
 {
 	mutex->lock();
 }
 
-void ClientData::unlock()
+void ClientData::unlockClient()
 {
 	mutex->unlock();
 }
