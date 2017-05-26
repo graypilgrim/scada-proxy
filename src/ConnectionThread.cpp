@@ -3,17 +3,17 @@
 #include "ClientThread.hpp"
 
 void ConnectionThread::run() {
-	int socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
+	socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 	if (socketDescriptor < 0)
-		throw std::runtime_error("Connection thread cannot open socket");
+		throw std::runtime_error("ConnectionThread cannot open socket");
 
 	sockaddr_in socketData;
 	socketData.sin_family = AF_INET;
 	socketData.sin_addr.s_addr = INADDR_ANY;
-	socketData.sin_port = htons(configuration->getServerPort());
+	socketData.sin_port = htons(configuration->getClientPort());
 
 	if (bind(socketDescriptor, (sockaddr *) &socketData, sizeof socketData) == -1)
-		throw std::runtime_error("Connection thread cannot bind socket");
+		throw std::runtime_error("ConnectionThread cannot bind socket");
 
 	listen(socketDescriptor, 5);
 
@@ -29,6 +29,4 @@ void ConnectionThread::run() {
 		t.detach();
 
 	} while(true);
-
-
 }

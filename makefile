@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -c -Wall -pedantic -o2 -std=c++11
+CXXFLAGS = -c -Wall -pedantic -O2 -std=c++11
 LINK_FLAGS = -lpthread
 BINARY = proxy.out
 
@@ -11,6 +11,9 @@ SOURCES = \
 		src/ConnectionThread.cpp \
 		src/ClientThread.cpp \
 		src/Logger.cpp \
+		src/Message.cpp \
+		src/ClientData.cpp \
+		src/ServerThread.cpp \
 
 OBJECTS=$(SOURCES:.cpp=.o)
 

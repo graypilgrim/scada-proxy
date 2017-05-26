@@ -1,21 +1,40 @@
 #include "Buffer.hpp"
 
+Buffer::Buffer()
+{
+	threadMutex.lock();
+}
+
 void Buffer::pushBack(std::shared_ptr<ClientData> data) {
-	mutex.lock();
+	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "up " << std::endl;
+	accessMutex.lock();
 	queue.emplace(data);
-	mutex.unlock();
+	accessMutex.unlock();
+	threadMutex.unlock();
+	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "down " << std::endl;
+}
+
+std::shared_ptr<ClientData> Buffer::front() {
+	return queue.front();
 }
 
 void Buffer::popFront() {
-	mutex.lock();
+	accessMutex.lock();
 	queue.pop();
-	mutex.unlock();
+
+	accessMutex.unlock();
 }
 
 bool Buffer::empty() {
-	mutex.lock();
+	accessMutex.lock();
 	auto res = queue.size();
-	mutex.unlock();
+	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "size " << queue.size() << std::endl;
+	accessMutex.unlock();
 
 	return res == 0;
+}
+
+void Buffer::lockServerThread() {
+	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "locking" << std::endl;
+	threadMutex.lock();
 }

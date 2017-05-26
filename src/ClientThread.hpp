@@ -8,12 +8,17 @@
 class ClientThread : public Thread
 {
 public:
-	using Thread::Thread;
+	ClientThread(const std::shared_ptr<Configuration> &configuration,
+	             const std::shared_ptr<Buffer> &buffer,
+		         const std::shared_ptr<Logger> &logger);
 
 	void run() override;
 
 private:
-	static const int maxBufferSize = 1024;
+	void receiveRequest();
+	void sendResponse();
+
+	std::shared_ptr<ClientData> data;
 };
 
 #endif

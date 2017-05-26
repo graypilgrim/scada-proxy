@@ -9,6 +9,11 @@ public:
 	using Thread::Thread;
 
 	void run() override;
+
+private:
+	void connectToServer();
+	void sendRequest();
+	void receiveResponse();
 };
 
 #endif

@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 enum ConfigurationField
 {
@@ -12,6 +13,7 @@ enum ConfigurationField
 	CLIENT_PORT,
 	LOG_FILE,
 	MAX_BUFFER_SIZE,
+	VERBOSITY,
 	Count
 };
 
@@ -21,7 +23,7 @@ public:
 	Configuration();
 	Configuration(std::ifstream &data);
 
-	std::string getServerAddress() const;
+	const char *getServerAddress() const;
 	int getServerPort() const;
 	int getClientPort() const;
 	std::string getLogFile() const;
@@ -29,7 +31,7 @@ public:
 	bool isVerbose() const;
 
 private:
-	std::vector<std::string> information;
+	std::unordered_map<std::string, std::string> information;
 	bool verbose;
 };
 
