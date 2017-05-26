@@ -14,10 +14,7 @@ void ServerThread::run()
 		std::cout << __FILE__ << __FUNCTION__ << ": " << "i am running" << std::endl;
 
 		sendRequest();
-
-		if (!buffer->empty())
-			buffer->popFront();
-
+		receiveResponse();
 	}
 }
 
@@ -33,9 +30,6 @@ void ServerThread::connectToServer()
 	inet_aton(configuration->getServerAddress(), &socketData.sin_addr);
 	socketData.sin_port = htons(configuration->getServerPort());
 
-
-
-   /* Now connect to the server */
    if (connect(socketDescriptor, (struct sockaddr*)&socketData, sizeof(socketData)) < 0)
 		throw std::runtime_error("Server connection error");
 
@@ -59,31 +53,15 @@ void ServerThread::sendRequest()
 
 void ServerThread::receiveResponse()
 {
+	auto data = buffer->front();
 
+	readFromSocket(
+		[&](const std::shared_ptr<Message> &m){
+			logger->saveResponse(m.get());
+			data->addResponse(m);
+			std::cout << std::endl;
+		});
+
+	data->unlockClient();
+	buffer->popFront();
 }
-   /* Now ask for a message from the user, this message
-      * will be read by server
-   */
-	// int n;
-   // printf("Please enter the message: ");
-   // bzero(buffer,256);
-   // fgets(buffer,255,stdin);
-   //
-   // /* Send message to the server */
-   // n = write(sockfd, buffer, strlen(buffer));
-   //
-   // if (n < 0) {
-   //    perror("ERROR writing to socket");
-   //    exit(1);
-   // }
-   //
-   // /* Now read server response */
-   // bzero(buffer,256);
-   // n = read(sockfd, buffer, 255);
-   //
-   // if (n < 0) {
-   //    perror("ERROR reading from socket");
-   //    exit(1);
-   // }
-   //
-   // printf("%s\n",buffer);

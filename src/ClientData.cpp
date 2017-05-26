@@ -2,7 +2,9 @@
 
 ClientData::ClientData()
 	: mutex(std::unique_ptr<std::mutex>(new std::mutex))
-{}
+{
+	mutex->lock();
+}
 
 void ClientData::addRequest(const std::shared_ptr<Message> &request)
 {
