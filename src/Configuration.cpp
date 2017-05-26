@@ -7,8 +7,8 @@
 Configuration::Configuration()
 {
 	information["SERVER_ADDRESS"] = "127.0.0.1";
-	information["SERVER_PORT"] = "1280";
-	information["CLIENT_PORT"] = "1299";
+	information["SERVER_PORT"] = "1281";
+	information["CLIENT_PORT"] = "1280";
 	information["LOG_FILE"] = "log.txt";
 	information["MAX_BUFFER_SIZE"] = "0";
 	information["VERBOSITY"] = "VERBOSE";

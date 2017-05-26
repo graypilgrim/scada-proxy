@@ -11,14 +11,16 @@ class ClientData
 public:
 	ClientData();
 
-	void addRequest(std::unique_ptr<Message> request);
-	void addResponse(std::unique_ptr<Message> response);
+	void addRequest(const std::shared_ptr<Message> &request);
+	std::shared_ptr<Message> getRequest();
+	void addResponse(const std::shared_ptr<Message> &response);
+	std::shared_ptr<Message> getResponse();
 	void lockClient();
 	void unlockClient();
 
 private:
-	std::unique_ptr<Message> request;
-	std::unique_ptr<Message> response;
+	std::shared_ptr<Message> request;
+	std::shared_ptr<Message> response;
 	std::unique_ptr<std::mutex> mutex;
 };
 

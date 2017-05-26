@@ -43,7 +43,7 @@ void ClientThread::receiveRequest()
 				messageBuffer = cachedMessageBuffer;
 			}
 
-			auto message = std::unique_ptr<Message>(new Message(messageBuffer, readSigns));
+			auto message = std::make_shared<Message>(messageBuffer, readSigns);
 
 			if (!message->isReady()) {
 				cachedMessageBuffer = messageBuffer;
@@ -58,10 +58,12 @@ void ClientThread::receiveRequest()
 				std::cout << std::hex << "0x"  << static_cast<int>(messageBuffer.get()[i]) << " ";
 			std::cout << std::endl;
 
-			concatenate = false;
+			break;
 		}
 
-	} while (readSigns != 0);
+	} while (concatenate);
+
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "end" << std::endl;
 }
 
 void ClientThread::sendResponse()

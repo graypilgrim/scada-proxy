@@ -2,14 +2,16 @@
 
 Buffer::Buffer()
 {
-	accessMutex.unlock();
+	threadMutex.lock();
 }
 
 void Buffer::pushBack(std::shared_ptr<ClientData> data) {
+	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "up " << std::endl;
 	accessMutex.lock();
 	queue.emplace(data);
 	accessMutex.unlock();
 	threadMutex.unlock();
+	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "down " << std::endl;
 }
 
 std::shared_ptr<ClientData> Buffer::front() {

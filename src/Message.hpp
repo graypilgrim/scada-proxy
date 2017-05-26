@@ -7,7 +7,10 @@
 class Message
 {
 public:
-	Message(const std::shared_ptr<char> &buffer, uint32_t length);
+	Message(const std::shared_ptr<char> &content, uint32_t length);
+
+	char *getContent();
+	uint32_t getContentLength();
 
 	bool isReady();
 	int getOptionalDataLength();
@@ -17,7 +20,7 @@ public:
 	static const uint32_t maxMessageSize = obligatoryDataSize + optionalDataSize;
 
 private:
-	std::shared_ptr<char> buffer;
+	std::shared_ptr<char> content;
 	uint32_t length;
 };
 

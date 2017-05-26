@@ -4,14 +4,24 @@ ClientData::ClientData()
 	: mutex(std::unique_ptr<std::mutex>(new std::mutex))
 {}
 
-void ClientData::addRequest(std::unique_ptr<Message> request)
+void ClientData::addRequest(const std::shared_ptr<Message> &request)
 {
-	this->request = std::move(request);
+	this->request = request;
 }
 
-void ClientData::addResponse(std::unique_ptr<Message> response)
+std::shared_ptr<Message> ClientData::getRequest()
 {
-	this->response = std::move(response);
+	return request;
+}
+
+void ClientData::addResponse(const std::shared_ptr<Message> &response)
+{
+	this->response = response;
+}
+
+std::shared_ptr<Message> ClientData::getResponse()
+{
+	return response;
 }
 
 void ClientData::lockClient()

@@ -11,10 +11,9 @@ void ServerThread::run()
 	connectToServer();
 
 	while (true) {
-		if (buffer->empty())
-			buffer->lockServerThread();
-
 		std::cout << __FILE__ << __FUNCTION__ << ": " << "i am running" << std::endl;
+
+		sendRequest();
 
 		if (!buffer->empty())
 			buffer->popFront();
@@ -40,6 +39,28 @@ void ServerThread::connectToServer()
    if (connect(socketDescriptor, (struct sockaddr*)&socketData, sizeof(socketData)) < 0)
 		throw std::runtime_error("Server connection error");
 
+}
+
+void ServerThread::sendRequest()
+{
+	if (buffer->empty())
+		buffer->lockServerThread();
+
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "i am sending" << std::endl;
+
+	auto message = buffer->front()->getRequest();
+	auto sentBytes = write(socketDescriptor, message->getContent(), message->getContentLength());
+
+	if (sentBytes < message->getContentLength())
+		std::cerr << "Sent less data than expected" << std::endl;
+
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "i am sent" << std::endl;
+}
+
+void ServerThread::receiveResponse()
+{
+
+}
    /* Now ask for a message from the user, this message
       * will be read by server
    */
@@ -66,4 +87,3 @@ void ServerThread::connectToServer()
    // }
    //
    // printf("%s\n",buffer);
-}

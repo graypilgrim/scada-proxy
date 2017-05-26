@@ -12,6 +12,8 @@ public:
 
 private:
 	void connectToServer();
+	void sendRequest();
+	void receiveResponse();
 };
 
 #endif

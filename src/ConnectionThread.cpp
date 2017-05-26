@@ -10,7 +10,7 @@ void ConnectionThread::run() {
 	sockaddr_in socketData;
 	socketData.sin_family = AF_INET;
 	socketData.sin_addr.s_addr = INADDR_ANY;
-	socketData.sin_port = htons(configuration->getServerPort());
+	socketData.sin_port = htons(configuration->getClientPort());
 
 	if (bind(socketDescriptor, (sockaddr *) &socketData, sizeof socketData) == -1)
 		throw std::runtime_error("ConnectionThread cannot bind socket");
