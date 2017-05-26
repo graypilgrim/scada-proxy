@@ -12,61 +12,28 @@ void ClientThread::run() {
 	receiveRequest();
 	buffer->pushBack(data);
 	std::cout << __FILE__ << __FUNCTION__ << ": " << "i am waiting for response" << std::endl;
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "locked" << std::endl;
 	data->lockClient();
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "unlocked" << std::endl;
+	sendResponse();
 	std::cout << __FILE__ << __FUNCTION__ << ": " << "i finished connection" << std::endl;
 	close(socketDescriptor);
 }
 
 void ClientThread::receiveRequest()
 {
-	int readSigns;
-
-	std::shared_ptr<char> cachedMessageBuffer = nullptr;
-	bool concatenate = false;
-
-	do {
-		std::shared_ptr<char> messageBuffer(new char[Message::maxMessageSize]);
-		memset(messageBuffer.get(), 0, Message::maxMessageSize);
-		readSigns = read(socketDescriptor, messageBuffer.get(), Message::maxMessageSize);
-
-		switch (readSigns)
-		{
-		case -1:
-			throw std::runtime_error("reading data error");
-
-		case 0:
-			break;
-
-		default:
-			if (concatenate) {
-				memcpy(cachedMessageBuffer.get(), messageBuffer.get(), readSigns);
-				messageBuffer = cachedMessageBuffer;
-			}
-
-			auto message = std::make_shared<Message>(messageBuffer, readSigns);
-
-			if (!message->isReady()) {
-				cachedMessageBuffer = messageBuffer;
-				concatenate = true;
-				continue;
-			}
-
-			logger->saveRequest(message.get());
-			data->addRequest(std::move(message));
-
-			for (auto i = 0; i < readSigns; ++i)
-				std::cout << std::hex << "0x"  << static_cast<int>(messageBuffer.get()[i]) << " ";
-			std::cout << std::endl;
-
-			break;
-		}
-
-	} while (concatenate);
-
-	std::cout << __FILE__ << __FUNCTION__ << ": " << "end" << std::endl;
+	readFromSocket(
+		[this](const std::shared_ptr<Message> &m){
+			logger->saveRequest(m.get());
+			data->addRequest(m);
+		});
 }
 
 void ClientThread::sendResponse()
 {
+	auto message = data->getResponse();
+	auto sentBytes = write(socketDescriptor, message->getContent(), message->getContentLength());
 
+	if (sentBytes < message->getContentLength())
+		std::cerr << "Sent less data than expected" << std::endl;
 }
