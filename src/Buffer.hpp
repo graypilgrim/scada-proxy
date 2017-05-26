@@ -4,7 +4,7 @@
 #include "ClientData.hpp"
 
 #include <mutex>
-#include <queue>
+#include <list>
 #include <memory>
 
 class Buffer
@@ -12,7 +12,7 @@ class Buffer
 public:
 	Buffer();
 
-	void pushBack(std::shared_ptr<ClientData> data);
+	void pushBack(const std::shared_ptr<ClientData> &data);
 	std::shared_ptr<ClientData> front();
 	void popFront();
 	bool empty();
@@ -20,7 +20,7 @@ public:
 	void lockServerThread();
 
 private:
-	std::queue<std::shared_ptr<ClientData> > queue;
+	std::list<std::shared_ptr<ClientData> > queue;
 	std::mutex accessMutex;
 	std::mutex threadMutex;
 };

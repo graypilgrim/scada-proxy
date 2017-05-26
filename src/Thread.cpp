@@ -58,4 +58,6 @@ void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Messa
 		}
 
 	} while (concatenate);
+
+    std::cout << __FILE__ << __FUNCTION__ << ": " << "down" << std::endl;
 }

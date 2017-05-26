@@ -33,7 +33,6 @@ void ClientThread::sendResponse()
 {
 	auto message = data->getResponse();
 	auto sentBytes = write(socketDescriptor, message->getContent(), message->getContentLength());
-
 	if (sentBytes < message->getContentLength())
 		std::cerr << "Sent less data than expected" << std::endl;
 }

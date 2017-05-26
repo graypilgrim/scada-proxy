@@ -5,23 +5,28 @@ Buffer::Buffer()
 	threadMutex.lock();
 }
 
-void Buffer::pushBack(std::shared_ptr<ClientData> data) {
+void Buffer::pushBack(const std::shared_ptr<ClientData> &data) {
 	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "up " << std::endl;
 	accessMutex.lock();
-	queue.emplace(data);
+	queue.emplace_back(data);
+	auto unlockThread = queue.size() == 1;
 	accessMutex.unlock();
-	threadMutex.unlock();
+
+	if (unlockThread)
+		threadMutex.unlock();
 	std::cout << __FILE__ << " " <<__FUNCTION__ << ": " << "down " << std::endl;
 }
 
 std::shared_ptr<ClientData> Buffer::front() {
-	return queue.front();
+	accessMutex.lock();
+	auto ret = queue.front();
+	accessMutex.unlock();
+	return ret;
 }
 
 void Buffer::popFront() {
 	accessMutex.lock();
-	queue.pop();
-
+	queue.pop_front();
 	accessMutex.unlock();
 }
 

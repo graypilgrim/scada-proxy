@@ -44,11 +44,12 @@ void ServerThread::sendRequest()
 
 	auto message = buffer->front()->getRequest();
 	auto sentBytes = write(socketDescriptor, message->getContent(), message->getContentLength());
+	sleep(2);
 
 	if (sentBytes < message->getContentLength())
 		std::cerr << "Sent less data than expected" << std::endl;
 
-	std::cout << __FILE__ << __FUNCTION__ << ": " << "i am sent" << std::endl;
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "i sent" << std::endl;
 }
 
 void ServerThread::receiveResponse()
@@ -61,6 +62,7 @@ void ServerThread::receiveResponse()
 			data->addResponse(m);
 			std::cout << std::endl;
 		});
+	sleep(2);
 
 	data->unlockClient();
 	buffer->popFront();
