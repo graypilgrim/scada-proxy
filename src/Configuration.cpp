@@ -11,7 +11,6 @@ Configuration::Configuration()
 	information["CLIENT_PORT"] = "1280";
 	information["LOG_FILE"] = "log.txt";
 	information["MAX_BUFFER_SIZE"] = "0";
-	information["VERBOSITY"] = "VERBOSE";
 }
 
 Configuration::Configuration(std::ifstream &data) {
@@ -48,8 +47,4 @@ std::string Configuration::getLogFile() const {
 
 std::string Configuration::getMaxBufferSize() const {
 	return information.at("MAX_BUFFER_SIZE");
-}
-
-bool Configuration::isVerbose() const {
-	return information.at("VERBOSITY") == "VERBOSE";
 }

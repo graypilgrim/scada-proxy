@@ -17,11 +17,15 @@ public:
 	std::shared_ptr<Message> getResponse();
 	void lockClient();
 	void unlockClient();
+	uint64_t getId();
 
 private:
 	std::shared_ptr<Message> request;
 	std::shared_ptr<Message> response;
-	std::unique_ptr<std::mutex> mutex;
+	std::mutex mutex;
+	uint64_t id;
+
+	static uint64_t counter;
 };
 
 #endif

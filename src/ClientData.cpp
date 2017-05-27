@@ -1,9 +1,9 @@
 #include "ClientData.hpp"
 
 ClientData::ClientData()
-	: mutex(std::unique_ptr<std::mutex>(new std::mutex))
+	: id(counter++)
 {
-	mutex->lock();
+	mutex.lock();
 }
 
 void ClientData::addRequest(const std::shared_ptr<Message> &request)
@@ -28,10 +28,17 @@ std::shared_ptr<Message> ClientData::getResponse()
 
 void ClientData::lockClient()
 {
-	mutex->lock();
+	mutex.lock();
 }
 
 void ClientData::unlockClient()
 {
-	mutex->unlock();
+	mutex.unlock();
 }
+
+uint64_t ClientData::getId()
+{
+	return id;
+}
+
+uint64_t ClientData::counter = 0;
