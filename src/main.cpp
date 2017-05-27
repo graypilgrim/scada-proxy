@@ -8,8 +8,18 @@
 #include <memory>
 #include <thread>
 
-int main() {
-	auto configuration = std::make_shared<Configuration>();
+int main(int argc, char **argv) {
+	std::shared_ptr<Configuration> configuration;
+
+	if (argc > 1) {
+		std::ifstream confFile(argv[1], std::ifstream::in);
+		if (confFile.good())
+			configuration = std::make_shared<Configuration>(confFile);
+		else
+			throw std::runtime_error("No such file");
+	} else
+		configuration = std::make_shared<Configuration>();
+
 	auto buffer = std::make_shared<Buffer>();
 	auto logger = std::make_shared<Logger>(configuration);
 

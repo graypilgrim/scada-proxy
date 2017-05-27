@@ -19,6 +19,8 @@ public:
 	std::string getMaxBufferSize() const;
 
 private:
+	void loadDefaultConfiguration();
+
 	std::unordered_map<std::string, std::string> information;
 };
 
