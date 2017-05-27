@@ -18,11 +18,11 @@ void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Messa
     std::cout << __FILE__ << __FUNCTION__ << ": " << "up" << std::endl;
     int readSigns;
 
-	std::shared_ptr<char> cachedMessageBuffer = nullptr;
+	std::shared_ptr<unsigned char> cachedMessageBuffer = nullptr;
 	bool concatenate = false;
 
 	do {
-		std::shared_ptr<char> messageBuffer(new char[Message::maxMessageSize]);
+		std::shared_ptr<unsigned char> messageBuffer(new unsigned char[Message::maxMessageSize]);
 		memset(messageBuffer.get(), 0, Message::maxMessageSize);
 		readSigns = read(socketDescriptor, messageBuffer.get(), Message::maxMessageSize);
 

@@ -12,6 +12,7 @@ class Logger
 {
 public:
 	Logger(const std::shared_ptr<Configuration> &configuration);
+	~Logger();
 
 	void saveRequest(ClientData *clientData, const std::string &clientAddress);
 	void saveResponse(ClientData *clientData, const std::string &clientAddress);

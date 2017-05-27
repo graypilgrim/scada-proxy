@@ -29,8 +29,8 @@ void ClientThread::receiveRequest()
 {
 	readFromSocket(
 		[this](const std::shared_ptr<Message> &m){
-			logger->saveRequest(data.get(), address);
 			data->addRequest(m);
+			logger->saveRequest(data.get(), address);
 		});
 }
 

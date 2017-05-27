@@ -9,6 +9,11 @@ Logger::Logger(const std::shared_ptr<Configuration> &configuration)
 	file.open(configuration->getLogFile(), std::ofstream::app);
 }
 
+Logger::~Logger()
+{
+	std::cout << __FILE__ << __FUNCTION__ << std::endl;
+}
+
 void Logger::saveRequest(ClientData *clientData, const std::string &clientAddress)
 {
 	std::lock_guard<std::mutex> lock(mutex);
@@ -18,7 +23,10 @@ void Logger::saveRequest(ClientData *clientData, const std::string &clientAddres
 	file << std::put_time(&tm, "%H:%M:%S %d/%m/%Y ");
 	file << clientData->getId() << " ";
 	file << clientAddress << " ";
-	file << configuration->getServerAddress() << "\n" << std::endl;
+	file << configuration->getServerAddress() << " ";
+	file << clientData->getRequest()->getCommand() << " ";
+	file << clientData->getRequest()->getSubcommand() << " ";
+	file << clientData->getRequest()->getData() << std::endl;
 }
 
 void Logger::saveResponse(ClientData *clientData, const std::string &clientAddress)
@@ -30,5 +38,6 @@ void Logger::saveResponse(ClientData *clientData, const std::string &clientAddre
 	file << std::put_time(&tm, "%H:%M:%S %d/%m/%Y ");
 	file << clientData->getId() << " ";
 	file << clientAddress << " ";
-	file << configuration->getServerAddress() << "\n" << std::endl;
+	file << configuration->getServerAddress() << " ";
+	file << clientData->getResponse()->responseStatus() << std::endl;
 }
