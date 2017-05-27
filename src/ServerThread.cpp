@@ -57,9 +57,7 @@ void ServerThread::receiveResponse()
 
 	readFromSocket(
 		[&](const std::shared_ptr<Message> &m){
-			logger->saveResponse(m.get());
 			data->addResponse(m);
-			std::cout << std::endl;
 		});
 
 	data->unlockClient();
