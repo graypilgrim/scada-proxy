@@ -42,8 +42,13 @@ std::string Configuration::getLogFile() const {
 	return information.at("LOG_FILE");
 }
 
-std::string Configuration::getMaxBufferSize() const {
-	return information.at("MAX_BUFFER_SIZE");
+uint64_t Configuration::getMaxBufferSize() const {
+	auto ret = std::stoll(information.at("MAX_BUFFER_SIZE"));
+
+	if (ret == 0)
+		return static_cast<uint64_t>(-1);
+
+	return ret;
 }
 
 void Configuration::loadDefaultConfiguration()
