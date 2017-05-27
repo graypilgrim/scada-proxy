@@ -11,6 +11,7 @@
 int main(int argc, char **argv) {
 	std::shared_ptr<Configuration> configuration;
 
+
 	if (argc > 1) {
 		std::ifstream confFile(argv[1], std::ifstream::in);
 		if (confFile.good())
@@ -22,6 +23,8 @@ int main(int argc, char **argv) {
 
 	auto buffer = std::make_shared<Buffer>(configuration->getMaxBufferSize());
 	auto logger = std::make_shared<Logger>(configuration);
+
+	logger->saveInfo("## Application Started ##");
 
 	auto connectionThread = std::make_shared<ConnectionThread>(configuration, buffer, logger);
 	std::thread conn(&ConnectionThread::run, *connectionThread);

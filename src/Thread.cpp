@@ -29,6 +29,7 @@ void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Messa
 		switch (readSigns)
 		{
 		case -1:
+			logger->saveError("Reading data error");
 			throw std::runtime_error("reading data error");
 
 		case 0:
