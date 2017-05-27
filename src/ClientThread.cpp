@@ -14,7 +14,7 @@ void ClientThread::run() {
 
 	data->lockClient();
 	sendResponse();
-	
+
 	close(socketDescriptor);
 }
 
@@ -37,5 +37,5 @@ void ClientThread::sendResponse()
 	logger->saveResponse(data.get(), address);
 	auto sentBytes = write(socketDescriptor, message->getContent(), message->getContentLength());
 	if (sentBytes < message->getContentLength())
-		std::cerr << "Sent less data than expected" << std::endl;
+		logger->saveWarning("Sent less data than expected");
 }

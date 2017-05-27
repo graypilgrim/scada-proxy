@@ -18,16 +18,20 @@ void ServerThread::connectToServer()
 {
 	socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 
- 	if (socketDescriptor < 0)
+ 	if (socketDescriptor < 0) {
+		logger->saveError("ServerThread cannot open socket");
  		throw std::runtime_error("ServerThread cannot open socket");
+	}
 
 	sockaddr_in socketData;
 	socketData.sin_family = AF_INET;
 	inet_aton(configuration->getServerAddress(), &socketData.sin_addr);
 	socketData.sin_port = htons(configuration->getServerPort());
 
-   if (connect(socketDescriptor, (struct sockaddr*)&socketData, sizeof(socketData)) < 0)
+   if (connect(socketDescriptor, (struct sockaddr*)&socketData, sizeof(socketData)) < 0) {
+		logger->saveError("Server connection error");
 		throw std::runtime_error("Server connection error");
+   }
 
 }
 
@@ -40,7 +44,7 @@ void ServerThread::sendRequest()
 	auto sentBytes = write(socketDescriptor, message->getContent(), message->getContentLength());
 
 	if (sentBytes < message->getContentLength())
-		std::cerr << "Sent less data than expected" << std::endl;
+		logger->saveWarning("Sent less data than expected");
 }
 
 void ServerThread::receiveResponse()
