@@ -2,6 +2,10 @@
 
 #include "ClientThread.hpp"
 
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
 void ConnectionThread::run() {
 	socketDescriptor = socket(AF_INET, SOCK_STREAM, 0);
 	if (socketDescriptor < 0)
@@ -18,13 +22,19 @@ void ConnectionThread::run() {
 	listen(socketDescriptor, 5);
 
 	do {
-		int clientSocketDescriptor = accept(socketDescriptor,(sockaddr *) 0,(socklen_t *) 0);
+		auto clientSocketData = std::make_shared<sockaddr_in>();
+		unsigned int clientSocketDataLength = sizeof(*clientSocketData);
+		int clientSocketDescriptor = accept(socketDescriptor,(sockaddr *) clientSocketData.get(), &clientSocketDataLength);
+
+		char dst[20];
+		auto addr = inet_ntop(AF_INET, &clientSocketData->sin_addr, dst, 20);
 
 		if (clientSocketDescriptor == -1 )
 			throw std::runtime_error("Client connection error");
 
 		auto clientThread = std::make_shared<ClientThread>(configuration, buffer, logger);
 		clientThread->setSocketDescriptor(clientSocketDescriptor);
+		clientThread->setAddress(addr);
 		std::thread t(&ClientThread::run, clientThread);
 		t.detach();
 

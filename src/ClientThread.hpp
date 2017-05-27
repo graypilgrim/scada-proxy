@@ -13,12 +13,14 @@ public:
 		         const std::shared_ptr<Logger> &logger);
 
 	void run() override;
+	void setAddress(const std::string &address);
 
 private:
 	void receiveRequest();
 	void sendResponse();
 
 	std::shared_ptr<ClientData> data;
+	std::string address;
 };
 
 #endif

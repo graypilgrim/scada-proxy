@@ -9,6 +9,7 @@ ClientThread::ClientThread(const std::shared_ptr<Configuration> &configuration,
 {}
 
 void ClientThread::run() {
+	std::cout << __FILE__ << __FUNCTION__ << ": " << "address: " << address << std::endl;
 	receiveRequest();
 	buffer->pushBack(data);
 	std::cout << __FILE__ << __FUNCTION__ << ": " << "i am waiting for response" << std::endl;
@@ -20,11 +21,15 @@ void ClientThread::run() {
 	close(socketDescriptor);
 }
 
+void ClientThread::setAddress(const std::string &address) {
+	this->address = address;
+}
+
 void ClientThread::receiveRequest()
 {
 	readFromSocket(
 		[this](const std::shared_ptr<Message> &m){
-			logger->saveRequest(m.get());
+			logger->saveRequest(m.get(), address);
 			data->addRequest(m);
 		});
 }
