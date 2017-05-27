@@ -23,8 +23,6 @@ bool Message::isReady()
 	if (content == nullptr)
 		throw std::runtime_error("Empty content provided");
 
-	std::cout << "DEBUG: " << __FUNCTION__ << "length: " << length << std::endl;
-
 	if (obligatoryDataSize + getOptionalDataLength() != length)
 		return false;
 

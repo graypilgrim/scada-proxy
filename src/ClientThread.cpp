@@ -9,15 +9,12 @@ ClientThread::ClientThread(const std::shared_ptr<Configuration> &configuration,
 {}
 
 void ClientThread::run() {
-	std::cout << __FILE__ << __FUNCTION__ << ": " << "address: " << address << std::endl;
 	receiveRequest();
 	buffer->pushBack(data);
-	std::cout << __FILE__ << __FUNCTION__ << ": " << "i am waiting for response" << std::endl;
-	std::cout << __FILE__ << __FUNCTION__ << ": " << "locked" << std::endl;
+
 	data->lockClient();
-	std::cout << __FILE__ << __FUNCTION__ << ": " << "unlocked" << std::endl;
 	sendResponse();
-	std::cout << __FILE__ << __FUNCTION__ << ": " << "i finished connection" << std::endl;
+	
 	close(socketDescriptor);
 }
 

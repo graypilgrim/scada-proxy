@@ -20,7 +20,7 @@ int main(int argc, char **argv) {
 	} else
 		configuration = std::make_shared<Configuration>();
 
-	auto buffer = std::make_shared<Buffer>();
+	auto buffer = std::make_shared<Buffer>(configuration->getMaxBufferSize());
 	auto logger = std::make_shared<Logger>(configuration);
 
 	auto connectionThread = std::make_shared<ConnectionThread>(configuration, buffer, logger);

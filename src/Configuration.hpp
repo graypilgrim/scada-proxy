@@ -16,7 +16,7 @@ public:
 	int getServerPort() const;
 	int getClientPort() const;
 	std::string getLogFile() const;
-	std::string getMaxBufferSize() const;
+	uint64_t getMaxBufferSize() const;
 
 private:
 	void loadDefaultConfiguration();
