@@ -9,11 +9,6 @@ Logger::Logger(const std::shared_ptr<Configuration> &configuration)
 	file.open(configuration->getLogFile(), std::ofstream::app);
 }
 
-Logger::~Logger()
-{
-	std::cout << __FILE__ << __FUNCTION__ << std::endl;
-}
-
 void Logger::saveRequest(ClientData *clientData, const std::string &clientAddress)
 {
 	std::lock_guard<std::mutex> lock(mutex);

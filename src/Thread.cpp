@@ -15,11 +15,11 @@ void Thread::setSocketDescriptor(int socketDescriptor)
 
 void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Message>&)> &loggingAndDataFilling)
 {
-    std::cout << __FILE__ << __FUNCTION__ << ": " << "up" << std::endl;
     int readSigns;
 
 	std::shared_ptr<unsigned char> cachedMessageBuffer = nullptr;
 	bool concatenate = false;
+
 
 	do {
 		std::shared_ptr<unsigned char> messageBuffer(new unsigned char[Message::maxMessageSize]);
@@ -50,14 +50,8 @@ void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Messa
 
             loggingAndDataFilling(message);
 
-			for (auto i = 0; i < readSigns; ++i)
-				std::cout << std::hex << "0x"  << static_cast<int>(messageBuffer.get()[i]) << " ";
-			std::cout << std::endl;
-
 			break;
 		}
 
 	} while (concatenate);
-
-    std::cout << __FILE__ << __FUNCTION__ << ": " << "down" << std::endl;
 }
