@@ -16,8 +16,7 @@ void Logger::saveMessage(const std::string &logMessage)
 	auto t = std::time(nullptr);
 	auto tm = *std::localtime(&t);
 	file << std::put_time(&tm, "%H:%M:%S %d/%m/%Y ");
-	file << logMessage;
-	file << std:endl;
+	file << logMessage << std:endl;
 }
 
 void Logger::saveRequest(ClientData *clientData, const std::string &clientAddress)
