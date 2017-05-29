@@ -81,5 +81,5 @@ std::string Message::responseStatus()
 	if (status == "0000")
 		return "SUCCESS";
 
-	return "ERROR" + status;
+	return "ERROR: " + status;
 }

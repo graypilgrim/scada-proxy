@@ -1,7 +1,7 @@
 #include "ClientData.hpp"
 
 ClientData::ClientData()
-	: id(counter++)
+	: id(++counter)
 {
 	mutex.lock();
 }
