@@ -3,8 +3,6 @@
 
 #include "Thread.hpp"
 
-#include <string.h>
-
 class ClientThread : public Thread
 {
 public:
@@ -16,7 +14,7 @@ public:
 	void setAddress(const std::string &address);
 
 private:
-	void receiveRequest();
+	bool receiveRequest();
 	void sendResponse();
 
 	std::shared_ptr<ClientData> data;

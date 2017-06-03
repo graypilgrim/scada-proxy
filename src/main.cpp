@@ -1,5 +1,3 @@
-#include <iostream>
-
 #include "Buffer.hpp"
 #include "Configuration.hpp"
 #include "ConnectionThread.hpp"

@@ -1,7 +1,5 @@
 #include "ClientThread.hpp"
 
-#include <iomanip>
-
 ClientThread::ClientThread(const std::shared_ptr<Configuration> &configuration,
 			 const std::shared_ptr<Buffer> &buffer,
 			 const std::shared_ptr<Logger> &logger)
@@ -9,11 +7,12 @@ ClientThread::ClientThread(const std::shared_ptr<Configuration> &configuration,
 {}
 
 void ClientThread::run() {
-	receiveRequest();
-	buffer->pushBack(data);
+	while (receiveRequest()) {
+		buffer->pushBack(data);
 
-	data->lockClient();
-	sendResponse();
+		data->lockClient();
+		sendResponse();
+	}
 
 	close(socketDescriptor);
 }
@@ -22,13 +21,16 @@ void ClientThread::setAddress(const std::string &address) {
 	this->address = address;
 }
 
-void ClientThread::receiveRequest()
+bool ClientThread::receiveRequest()
 {
-	readFromSocket(
-		[this](const std::shared_ptr<Message> &m){
-			data->addRequest(m);
-			logger->saveRequest(data.get(), address);
-		});
+	auto message = readFromSocket();
+	if (!message)
+		return false;
+
+	data->addRequest(message);
+	logger->saveRequest(data.get(), address);
+
+	return true;
 }
 
 void ClientThread::sendResponse()

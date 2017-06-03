@@ -51,11 +51,11 @@ void ServerThread::receiveResponse()
 {
 	auto data = buffer->front();
 
-	readFromSocket(
-		[&](const std::shared_ptr<Message> &m){
-			data->addResponse(m);
-		});
+	auto message = readFromSocket();
+	if (!message)
+		return;
 
+	data->addResponse(message);
 	data->unlockClient();
 	buffer->popFront();
 }

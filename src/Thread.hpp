@@ -20,7 +20,7 @@ public:
 		   const std::shared_ptr<Logger> &logger);
 	virtual ~Thread() = default;
 	virtual void run() = 0;
-	virtual void readFromSocket(const std::function<void(const std::shared_ptr<Message>&)> &loggingAndDataFilling);
+	virtual std::shared_ptr<Message> readFromSocket();
 
 	void setSocketDescriptor(int socketDescriptor);
 

@@ -1,7 +1,6 @@
 #ifndef MESSAGE_HPP_
 #define MESSAGE_HPP_
 
-#include <iostream>
 #include <memory>
 
 class Message

@@ -1,5 +1,6 @@
 #include "Logger.hpp"
 
+#include <iostream>
 #include <iomanip>
 #include <ctime>
 
@@ -44,22 +45,20 @@ void Logger::saveResponse(ClientData *clientData, const std::string &clientAddre
 void Logger::saveInfo(const std::string &infoMessage)
 {
 	std::string logMessage = "INFO: " + infoMessage;
-
 	saveMessage(logMessage);
+	std::cerr << infoMessage << std::endl;
 }
 
 void Logger::saveError(const std::string &errorMessage)
 {
 	std::string logMessage = "ERROR: " + errorMessage;
-
 	saveMessage(logMessage);
+	std::cerr << errorMessage << std::endl;
 }
 
 void Logger::saveWarning(const std::string &warningMessage)
 {
 	std::string logMessage = "WARNING: " + warningMessage;
-
 	saveMessage(logMessage);
-
 	std::cerr << warningMessage << std::endl;
 }

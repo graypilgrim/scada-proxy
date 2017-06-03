@@ -13,7 +13,7 @@ void Thread::setSocketDescriptor(int socketDescriptor)
 	this->socketDescriptor = socketDescriptor;
 }
 
-void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Message>&)> &loggingAndDataFilling)
+std::shared_ptr<Message> Thread::readFromSocket()
 {
     int readSigns;
 
@@ -33,7 +33,7 @@ void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Messa
 			throw std::runtime_error("reading data error");
 
 		case 0:
-			break;
+			return nullptr;
 
 		default:
 			if (concatenate) {
@@ -49,10 +49,12 @@ void Thread::readFromSocket(const std::function<void(const std::shared_ptr<Messa
 				continue;
 			}
 
-            loggingAndDataFilling(message);
+            return message;
 
 			break;
 		}
 
 	} while (concatenate);
+
+    return nullptr;
 }
