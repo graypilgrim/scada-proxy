@@ -3,7 +3,7 @@
 ClientThread::ClientThread(const std::shared_ptr<Configuration> &configuration,
 			 const std::shared_ptr<Buffer> &buffer,
 			 const std::shared_ptr<Logger> &logger)
-	: Thread(configuration, buffer, logger), data(std::make_shared<ClientData>())
+	: Thread(configuration, buffer, logger)
 {}
 
 void ClientThread::run() {
@@ -23,6 +23,7 @@ void ClientThread::setAddress(const std::string &address) {
 
 bool ClientThread::receiveRequest()
 {
+	data = std::make_shared<ClientData>();
 	auto message = readFromSocket();
 	if (!message)
 		return false;
