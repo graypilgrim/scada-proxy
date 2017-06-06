@@ -52,8 +52,10 @@ void ServerThread::receiveResponse()
 	auto data = buffer->front();
 
 	auto message = readFromSocket();
-	if (!message)
+	if (!message) {
+		logger->saveError("Server has closed connection");
 		return;
+	}
 
 	data->addResponse(message);
 	data->unlockClient();
